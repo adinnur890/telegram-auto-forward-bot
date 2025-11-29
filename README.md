@@ -15,8 +15,8 @@ Bot Telegram otomatis untuk forward pesan dari channel ke multiple grup dengan f
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/USERNAME/REPO_NAME.git
-cd REPO_NAME
+git clone https://github.com/adinnur890/telegram-auto-forward-bot.git
+cd telegram-auto-forward-bot
 ```
 
 ### 2. Install Dependencies

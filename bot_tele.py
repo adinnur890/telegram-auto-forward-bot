@@ -1,6 +1,7 @@
 import asyncio
 import random
 import os
+import re
 from datetime import datetime
 from telethon import TelegramClient, events
 from telethon.errors import SessionPasswordNeededError, FloodWaitError
@@ -39,8 +40,8 @@ target_groups = [
     "ShareLadangcuan",
 ]
 
-MIN_DELAY = 30   # jeda lebih lama biar aman dari flood
-MAX_DELAY = 60
+MIN_DELAY = 3   # delay minimal aman
+MAX_DELAY = 7   # delay maksimal aman
 last_message_id = None  # track pesan terakhir
 # =====================
 
@@ -55,13 +56,83 @@ async def get_latest_message():
         print(f"❌ Gagal ambil pesan terbaru: {e}")
         return None
 
+def clean_spam_message(text):
+    """Bersihkan pesan dari elemen spam"""
+    if not text:
+        return text
+    
+    # Ganti kata-kata sensitif dulu
+    replacements = {
+        'slot': 'game',
+        'depo': 'deposit', 
+        'freebet': 'bonus',
+        'wd': 'withdraw'
+    }
+    
+    for old, new in replacements.items():
+        text = re.sub(old, new, text, flags=re.IGNORECASE)
+    
+    # Link penting yang harus dipertahankan
+    important_links = ['bitly.cx', 'bit.ly', 'tinyurl.com']
+    
+    # Hapus link berlebihan tapi pertahankan yang penting
+    lines = text.split('\n')
+    new_lines = []
+    main_link_count = 0
+    
+    for line in lines:
+        # Cek apakah line punya link
+        line_links = re.findall(r'https?://[^\s]+', line)
+        
+        if line_links:
+            # Cek apakah ada link penting di line ini
+            has_important = any(imp in link for link in line_links for imp in important_links)
+            
+            if has_important:
+                # Selalu pertahankan line dengan link penting
+                new_lines.append(line)
+            elif main_link_count < 2:  # sisakan 2 link utama
+                new_lines.append(line)
+                main_link_count += 1
+            # skip line dengan link berlebihan
+        else:
+            new_lines.append(line)
+    
+    return '\n'.join(new_lines).strip()
+
+def is_spam_like(text):
+    """Cek apakah pesan berpotensi spam"""
+    if not text:
+        return False
+    
+    spam_indicators = [
+        text.count('http') > 5,  # banyak link
+        len(text.split('\n')) > 20,  # terlalu panjang
+        'slot' in text.lower() and 'depo' in text.lower(),  # gambling
+    ]
+    return any(spam_indicators)
+
 async def forward_to_groups(message):
     """Forward pesan ke semua grup dengan handling yang lebih baik"""
     success_count = 0
     
+    # Cek potensi spam
+    if is_spam_like(message.text):
+        print("⚠️ Pesan berpotensi spam, gunakan delay lebih lama...")
+        spam_delay_multiplier = 2
+    else:
+        spam_delay_multiplier = 1
+    
     for i, group in enumerate(target_groups, 1):
         try:
-            await client.forward_messages(group, message)
+            # Bersihkan pesan kalau spam
+            if message.text and is_spam_like(message.text):
+                cleaned_text = clean_spam_message(message.text)
+                await client.send_message(group, cleaned_text)
+                print(f"🧽 Pesan dibersihkan untuk {group}")
+            else:
+                await client.forward_messages(group, message)
+            
             success_count += 1
             timestamp = datetime.now().strftime("%H:%M:%S")
             print(f"✅ [{timestamp}] Forward ke {group} ({i}/{len(target_groups)})")
@@ -73,11 +144,15 @@ async def forward_to_groups(message):
         except Exception as e:
             print(f"❌ Gagal forward ke {group}: {e}")
         
-        # Jeda antar grup
+        # Jeda antar grup dengan variasi natural
         if i < len(target_groups):  # jangan delay di grup terakhir
-            delay = random.randint(MIN_DELAY, MAX_DELAY)
-            print(f"⏳ Tunggu {delay}s sebelum grup berikutnya...")
-            await asyncio.sleep(delay)
+            base_delay = random.randint(MIN_DELAY, MAX_DELAY)
+            # Tambah variasi acak kecil
+            extra_delay = random.uniform(0.5, 2.0)
+            # Kalau spam, delay lebih lama
+            total_delay = (base_delay + extra_delay) * spam_delay_multiplier
+            print(f"⏳ Tunggu {total_delay:.1f}s sebelum grup berikutnya...")
+            await asyncio.sleep(total_delay)
     
     return success_count
 
@@ -109,14 +184,35 @@ async def monitor_new_messages():
             
             # Cek apakah ada pesan baru
             if last_message_id is None:
+                print(f"📌 Set baseline message ID: {latest_message.id}")
+                print("🚀 Bot siap! Forward pesan ID 1077 untuk test...")
+                
+                # Ambil pesan spesifik ID 1077
+                try:
+                    target_message = await client.get_messages(source_channel, ids=1077)
+                    if target_message:
+                        print(f"📝 Pesan 1077 ditemukan: {target_message.text[:100] if target_message.text else 'Media/File'}...")
+                        success_count = await forward_to_groups(target_message)
+                        timestamp = datetime.now().strftime("%H:%M:%S")
+                        print(f"✅ [{timestamp}] Test selesai! Berhasil forward ke {success_count}/{len(target_groups)} grup")
+                    else:
+                        print("⚠️ Pesan ID 1077 tidak ditemukan")
+                except Exception as e:
+                    print(f"❌ Error ambil pesan 1077: {e}")
+                
+                print("="*50)
                 last_message_id = latest_message.id
-                print(f"📌 Set baseline message ID: {last_message_id}")
-                await asyncio.sleep(30)
+                await asyncio.sleep(10)
                 continue
             
             if latest_message.id > last_message_id:
                 print(f"🆕 Pesan baru ditemukan! ID: {latest_message.id}")
-                print(f"📝 Preview: {latest_message.text[:100] if latest_message.text else 'Media/File'}...")
+                preview_text = latest_message.text[:100] if latest_message.text else 'Media/File'
+                print(f"📝 Preview: {preview_text}...")
+                
+                # Cek dan bersihkan kalau spam
+                if latest_message.text and is_spam_like(latest_message.text):
+                    print("⚠️ Pesan terdeteksi spam, akan dibersihkan otomatis")
                 
                 success_count = await forward_to_groups(latest_message)
                 last_message_id = latest_message.id
@@ -127,8 +223,8 @@ async def monitor_new_messages():
             else:
                 print(f"💤 Belum ada pesan baru (last ID: {last_message_id})")
             
-            # Check interval lebih lama
-            await asyncio.sleep(120)  # cek setiap 2 menit
+            # Check interval lebih cepat
+            await asyncio.sleep(30)  # cek setiap 30 detik
             
         except Exception as e:
             print(f"❌ Error di monitoring: {e}")
