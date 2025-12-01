@@ -33,7 +33,7 @@ link: https://www.in22.online/?code=9XLF6R
 https://www.in22.online/?code=9XLF6R"""
 
 # === AUTO SETTINGS ===
-INTERVAL_MINUTES = 30  # Kirim setiap 30 menit (lebih sering!)
+INTERVAL_MINUTES = 5  # Kirim setiap 5 menit (super cepat!)
 MIN_DELAY = 1
 MAX_DELAY = 3
 
