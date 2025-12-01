@@ -38,6 +38,8 @@ target_groups = [
     "LINKALTERNATIF78",
     "JOIN_SINI_GROUP_BEBAS_SHARE_LINK",
     "ShareLadangcuan",
+    "Bebas Share APK Cuan",
+    "SHARE BEBAS WEB CUAN",
 ]
 
 MIN_DELAY = 3   # delay minimal aman

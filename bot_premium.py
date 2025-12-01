@@ -24,7 +24,8 @@ target_groups = [
     "bebaslinksharee", "infofreebetttt", "legitinvestmentsites0",
     "salinglikevidiotiktok", "Grupbebassharelinkantibanned", "Bebas_Sharee01",
     "Bebas_Sharee02", "Bebas_Sharee03", "LINKALTERNATIF78",
-    "JOIN_SINI_GROUP_BEBAS_SHARE_LINK", "ShareLadangcuan"
+    "JOIN_SINI_GROUP_BEBAS_SHARE_LINK", "ShareLadangcuan",
+    "Bebas Share APK Cuan", "SHARE BEBAS WEB CUAN"
 ]
 
 # === ADVANCED SETTINGS ===
