@@ -23,12 +23,16 @@ target_groups = [
     "JOIN_SINI_GROUP_BEBAS_SHARE_LINK", "ShareLadangcuan", "Bebas Share APK Cuan"
 ]
 
-PULSA_MESSAGE = """gas apk terbaru modal spin bisa dapetin pulsa gratis tanpa modal gasken Mayan pulsa gratis 
+PEAKAI_MESSAGE = """gajian terus tiap minggu dari peakAi bang
+login pake akun Tiikktttoookkkk
+tugas upload Vidio asal doang
+lumayan gajian seminggu sekali😁
 
-note : link kalo ngga bisa di akses pake vpn 
+link daftar:
+https://takeapeak.ai/invite/XqUFPmUKmMdWqgajU3PAeaVUN2Bw250a
 
-link: https://www.in22.online/?code=9XLF6R
-https://www.in22.online/?code=9XLF6R"""
+contoh link tt jangan lupa like:
+https://www.tiktok.com/@din_dev12/video/7579449861855071509?is_from_webapp=1&sender_device=pc&web_id=7522430435851945490"""
 
 client = TelegramClient(session, api_id, api_hash)
 
@@ -94,7 +98,7 @@ async def blast_campaign():
         print(f"\r🔄 {progress_bar(i-1, len(target_groups))} Processing...", end="", flush=True)
         
         try:
-            await client.send_message(group, PULSA_MESSAGE)
+            await client.send_message(group, PEAKAI_MESSAGE)
             success_count += 1
             total_sent += 1
             status = "✅"
@@ -163,7 +167,7 @@ async def main():
         print(f"\n✅ Authentication successful!")
         print(f"👤 Account: {me.first_name} (@{me.username})")
         print(f"🎯 Ready to blast {len(target_groups)} groups")
-        print(f"📱 Message: Pulsa gratis promo")
+        print(f"📱 Message: PeakAI gajian promo")
         
         start_time = datetime.now()
         

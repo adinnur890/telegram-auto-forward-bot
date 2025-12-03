@@ -25,12 +25,16 @@ target_groups = [
     "JOIN_SINI_GROUP_BEBAS_SHARE_LINK", "ShareLadangcuan", "Bebas Share APK Cuan"
 ]
 
-PULSA_MESSAGE = """gas apk terbaru modal spin bisa dapetin pulsa gratis tanpa modal gasken Mayan pulsa gratis 
+PEAKAI_MESSAGE = """gajian terus tiap minggu dari peakAi bang
+login pake akun Tiikktttoookkkk
+tugas upload Vidio asal doang
+lumayan gajian seminggu sekali😁
 
-note : link kalo ngga bisa di akses pake vpn 
+link daftar:
+https://takeapeak.ai/invite/XqUFPmUKmMdWqgajU3PAeaVUN2Bw250a
 
-link: https://www.in22.online/?code=9XLF6R
-https://www.in22.online/?code=9XLF6R"""
+contoh link tt jangan lupa like:
+https://www.tiktok.com/@din_dev12/video/7579449861855071509?is_from_webapp=1&sender_device=pc&web_id=7522430435851945490"""
 
 client = TelegramClient(session, api_id, api_hash)
 
@@ -74,7 +78,7 @@ async def send_blast():
             break
             
         try:
-            await client.send_message(group, PULSA_MESSAGE)
+            await client.send_message(group, PEAKAI_MESSAGE)
             success_count += 1
             total_sent += 1
             log_with_time(f"✅ Sent to {group} ({i}/{len(target_groups)})")
@@ -124,7 +128,7 @@ async def auto_24_7_bot():
         log_with_time("🤖 AUTO 24/7 PULSA BOT ACTIVATED")
         log_with_time(f"👤 Account: {me.first_name} (@{me.username})")
         log_with_time(f"🎯 Target groups: {len(target_groups)}")
-        log_with_time(f"📱 Message: Pulsa gratis promo")
+        log_with_time(f"📱 Message: PeakAI gajian promo")
         log_with_time("🔄 Running in AUTO mode - no manual intervention needed")
         
         start_time = datetime.now()
